@@ -8,9 +8,14 @@ bundle:
     over a network (LAN, Tailscale, internet).
 
 includes:
+  - bundle: git+https://github.com/microsoft/amplifier-foundation@main
   - bundle: a2a:behaviors/a2a.yaml
 ---
 
 # A2A Bundle
 
 @a2a:context/a2a-instructions.md
+
+---
+
+@foundation:context/shared/common-system-base.md
