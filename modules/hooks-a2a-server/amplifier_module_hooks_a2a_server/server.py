@@ -164,14 +164,23 @@ class A2AServer:
             )
 
             if should_evaluate:
-                providers = getattr(self.coordinator, "mount_points", {}).get(
-                    "providers", []
+                providers_map = getattr(self.coordinator, "mount_points", {}).get(
+                    "providers", {}
                 )
-                if providers:
+                # mount_points["providers"] is a dict keyed by module name,
+                # not a list. Get the first available provider.
+                provider_list = (
+                    list(providers_map.values())
+                    if isinstance(providers_map, dict)
+                    else list(providers_map)
+                    if providers_map
+                    else []
+                )
+                if provider_list:
                     from .evaluation import evaluate_confidence
 
                     is_sufficient = await evaluate_confidence(
-                        provider=providers[0],
+                        provider=provider_list[0],
                         question=text,
                         response=response_text,
                     )
