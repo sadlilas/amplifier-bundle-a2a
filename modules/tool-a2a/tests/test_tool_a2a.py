@@ -211,7 +211,9 @@ class TestSendOperation:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -297,7 +299,9 @@ class TestSendOperation:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -326,7 +330,9 @@ class TestSendOperation:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1165,7 +1171,9 @@ class TestSendBlockingFalse:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1202,7 +1210,9 @@ class TestSendPolling:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1245,7 +1255,9 @@ class TestSendPolling:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1280,7 +1292,9 @@ class TestSendPolling:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1388,7 +1402,9 @@ class TestOutgoingTracking:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1417,7 +1433,9 @@ class TestOutgoingTracking:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1448,7 +1466,9 @@ class TestOutgoingTracking:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1474,7 +1494,9 @@ class TestOutgoingTracking:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1535,7 +1557,9 @@ class TestOutgoingTracking:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 
@@ -1565,7 +1589,9 @@ class TestOutgoingTracking:
 
         registry = _make_mock_registry()
         registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
-        registry.get_cached_card = MagicMock(return_value={"name": "Alice"})
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
         coordinator = _make_mock_coordinator(registry=registry)
         tool = A2ATool(coordinator, {})
 

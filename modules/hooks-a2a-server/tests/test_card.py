@@ -9,7 +9,7 @@ class TestBuildAgentCard:
         assert card["name"] == "Amplifier Agent"
         assert card["description"] == "An Amplifier-powered agent"
         assert card["version"] == "1.0"
-        assert card["capabilities"] == {"streaming": False}
+        assert card["capabilities"] == {"streaming": False, "realtimeResponse": False}
         assert card["skills"] == []
 
     def test_custom_name_and_description(self):

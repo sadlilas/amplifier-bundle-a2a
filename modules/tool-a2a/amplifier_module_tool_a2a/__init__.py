@@ -303,11 +303,21 @@ class A2ATool:
             )
 
         # Ensure we have the agent's card (validates reachability)
+        card = None
         if self.registry:
-            cached = self.registry.get_cached_card(url)
-            if not cached:
+            card = self.registry.get_cached_card(url)
+            if not card:
                 card = await self.client.fetch_agent_card(url)
                 self.registry.cache_card(url, card)
+
+        # Check if remote agent supports real-time responses.
+        # If not, override to non-blocking — don't waste time waiting
+        # for a response that requires human interaction on the other end.
+        is_async_agent = (
+            not (card or {}).get("capabilities", {}).get("realtimeResponse", False)
+        )
+        if is_async_agent and blocking:
+            blocking = False
 
         # Determine our sender identity for the remote server's contact check
         sender_url = None
@@ -328,6 +338,15 @@ class A2ATool:
             task_id = result.get("id")
             if task_id and result.get("status") not in terminal_states:
                 self._track_outgoing(task_id, url, agent)
+            # Add context about why we went async if it was due to the
+            # remote agent not supporting real-time responses
+            if is_async_agent and result.get("status") not in terminal_states:
+                result["_note"] = (
+                    f"{agent} is an async agent (CLI session) — the user "
+                    f"will see your message on their next interaction. "
+                    f"The response will be delivered to you automatically "
+                    f"when it arrives."
+                )
             return ToolResult(success=True, output=result)
 
         # Blocking: poll until terminal state or timeout

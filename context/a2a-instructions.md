@@ -33,6 +33,9 @@ Messages from remote agents appear automatically in your context during active s
 3. If the response is immediate (COMPLETED), relay it to the user
 4. If INPUT_REQUIRED, tell the user and check back later — or the response will appear automatically when it arrives
 
+### Async vs Real-Time Agents
+Some agents are **async** (e.g., CLI sessions) — they can only see your message when their user next interacts. The `send` operation detects this automatically from the remote agent's card and switches to non-blocking mode. When this happens, you'll see a `_note` field explaining the situation. Tell the user their message was delivered and the response will arrive when the other person is available — don't make them wait.
+
 ### Response Attribution
 Responses include how they were generated:
 - **"autonomous"** — The remote agent answered without human involvement

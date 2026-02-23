@@ -25,6 +25,9 @@ def build_agent_card(config: dict[str, Any]) -> dict[str, Any]:
                 "protocolVersion": "1.0",
             }
         ],
-        "capabilities": {"streaming": False},
+        "capabilities": {
+            "streaming": False,
+            "realtimeResponse": config.get("realtime_response", False),
+        },
         "skills": config.get("skills", []),
     }
