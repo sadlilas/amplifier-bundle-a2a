@@ -1,0 +1,21 @@
+bundle:
+  name: behavior-a2a
+  version: 0.1.0
+  description: A2A agent-to-agent communication — tool, server hook, and LLM context
+
+tools:
+  - module: tool-a2a
+    config: {}
+
+hooks:
+  - module: hooks-a2a-server
+    config:
+      port: 8222
+      agent_name: "Amplifier Agent"
+      agent_description: "An Amplifier-powered agent"
+      skills: []
+      known_agents: []
+
+context:
+  include:
+    - a2a:context/a2a-instructions.md
