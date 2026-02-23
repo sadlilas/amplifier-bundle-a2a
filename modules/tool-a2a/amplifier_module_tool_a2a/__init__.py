@@ -166,7 +166,12 @@ class A2ATool:
                 )
         except Exception as e:
             logger.exception("A2A operation '%s' failed", operation)
-            return ToolResult(success=False, error={"message": str(e)})
+            error_msg = str(e).strip()
+            if not error_msg:
+                error_msg = f"{type(e).__name__}: (no details)"
+            else:
+                error_msg = f"{type(e).__name__}: {error_msg}"
+            return ToolResult(success=False, error={"message": error_msg})
 
     async def _op_agents(self) -> ToolResult:
         """List all known remote agents from all sources."""
