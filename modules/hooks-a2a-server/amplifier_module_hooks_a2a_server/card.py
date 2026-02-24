@@ -1,6 +1,7 @@
 """Agent Card generation — builds the A2A identity document from config."""
 
 import getpass
+import socket
 from typing import Any
 
 
@@ -21,7 +22,16 @@ def build_agent_card(config: dict[str, Any]) -> dict[str, Any]:
     """
     port = config.get("port", 8222)
     host = config.get("host", "0.0.0.0")
-    base_url = config.get("base_url", f"http://{host}:{port}")
+    # Don't use 0.0.0.0 in the URL — it's a listen address, not reachable.
+    # Use the machine's hostname for a shareable URL.
+    if host == "0.0.0.0":
+        try:
+            url_host = socket.gethostname()
+        except Exception:
+            url_host = "127.0.0.1"
+    else:
+        url_host = host
+    base_url = config.get("base_url", f"http://{url_host}:{port}")
 
     return {
         "name": config.get("agent_name") or _default_agent_name(),

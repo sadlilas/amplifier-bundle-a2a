@@ -59,14 +59,21 @@ class A2ARegistry:
         """Resolve an agent name or URL to a URL.
 
         If the input looks like a URL (starts with http:// or https://),
-        return it directly. Otherwise, look up by name (case-insensitive).
+        return it directly. Otherwise, look up by name (case-insensitive)
+        in known agents first, then in the contact store.
         Returns None if the agent is not found.
         """
         if name_or_url.startswith(("http://", "https://")):
             return name_or_url
+        # Check config-based known agents
         for agent in self._agents:
             if agent.name.lower() == name_or_url.lower():
                 return agent.url
+        # Check contact store (contacts added via add_contact)
+        if self.contact_store:
+            for contact in self.contact_store.list_contacts():
+                if contact["name"].lower() == name_or_url.lower():
+                    return contact["url"]
         return None
 
     def create_task(self, message: dict[str, Any]) -> str:
