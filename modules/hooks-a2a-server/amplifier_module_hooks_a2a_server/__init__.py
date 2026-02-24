@@ -64,7 +64,17 @@ async def mount(coordinator: Any, config: dict[str, Any] | None = None) -> None:
     try:
         await server.start()
     except OSError as e:
-        logger.warning("A2A server failed to start (port conflict?): %s", e)
+        port = config.get("port", 8222)
+        registry.server_running = False
+        logger.warning(
+            "A2A server failed to start: port %s is already in use. "
+            "Another Amplifier session or service may be using this port. "
+            "Configure a different port via hooks-a2a-server config: "
+            "hooks: [{module: hooks-a2a-server, config: {port: <new_port>}}]. "
+            "Error: %s",
+            port,
+            e,
+        )
         return
 
     # Start mDNS advertisement if enabled

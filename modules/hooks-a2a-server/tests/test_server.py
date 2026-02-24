@@ -206,3 +206,47 @@ class TestMount:
         # Should NOT register anything
         coordinator.register_capability.assert_not_called()
         coordinator.register_cleanup.assert_not_called()
+
+    async def test_mount_sets_server_running_false_on_port_collision(self):
+        from unittest.mock import AsyncMock, patch
+
+        from amplifier_module_hooks_a2a_server import mount
+
+        coordinator = _make_mock_coordinator(parent_id=None)
+        config = {"port": 9999, "host": "127.0.0.1", "agent_name": "Test"}
+
+        with patch(
+            "amplifier_module_hooks_a2a_server.server.A2AServer.start",
+            new_callable=AsyncMock,
+            side_effect=OSError("Address already in use"),
+        ):
+            await mount(coordinator, config)
+
+        # Registry should have been registered before start() was called
+        coordinator.register_capability.assert_called_once()
+        registry = coordinator.register_capability.call_args[0][1]
+        assert registry.server_running is False
+
+    async def test_mount_logs_port_in_error_message(self, caplog):
+        import logging
+        from unittest.mock import AsyncMock, patch
+
+        from amplifier_module_hooks_a2a_server import mount
+
+        coordinator = _make_mock_coordinator(parent_id=None)
+        config = {"port": 7777, "host": "127.0.0.1", "agent_name": "Test"}
+
+        with (
+            patch(
+                "amplifier_module_hooks_a2a_server.server.A2AServer.start",
+                new_callable=AsyncMock,
+                side_effect=OSError("Address already in use"),
+            ),
+            caplog.at_level(logging.WARNING),
+        ):
+            await mount(coordinator, config)
+
+        # The warning message should include the port number
+        assert any("7777" in record.message for record in caplog.records), (
+            f"Expected port 7777 in log messages, got: {[r.message for r in caplog.records]}"
+        )
