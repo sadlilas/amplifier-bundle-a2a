@@ -68,6 +68,18 @@ The typical flow to connect two agents:
 
 For agents on the same LAN, mDNS discovery may find them automatically via `discover`.
 
+## Critical Rules
+
+**NEVER fabricate incoming messages.** You will ONLY know about incoming messages or approval requests when you see actual `<a2a-pending-messages>` or `<a2a-approval-request>` XML tags injected into your context. If you don't see these tags, there are NO pending messages. Do NOT tell the user "you have a message from X" unless you can point to the actual injection tag in your context.
+
+**NEVER invent task_id values.** When responding to or dismissing a message, the `task_id` is a UUID that appears in the injection text (e.g., `task_id="5b68a879-ff20-4f8b-852a-4f2f9b3c2a86"`). Copy it EXACTLY from the injection. Do not guess, abbreviate, or construct task_ids.
+
+**Approval requests are NOT messages.** They use different operations:
+- `<a2a-approval-request>` → use `a2a(operation="approve", agent="<URL>")` or `a2a(operation="block", agent="<URL>")`
+- `<a2a-pending-messages>` → use `a2a(operation="respond", task_id="<UUID>", message="...")` or `a2a(operation="dismiss", task_id="<UUID>")`
+
+Do NOT use `respond` on an approval request. Do NOT use `approve` on a pending message.
+
 ## Important
 
 - Messages are sent to remote agents on other devices — they may be controlled by other people
