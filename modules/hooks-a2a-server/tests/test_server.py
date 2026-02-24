@@ -250,3 +250,52 @@ class TestMount:
         assert any("7777" in record.message for record in caplog.records), (
             f"Expected port 7777 in log messages, got: {[r.message for r in caplog.records]}"
         )
+
+    async def test_mount_stores_card_on_registry(self):
+        from amplifier_module_hooks_a2a_server import mount
+
+        coordinator = _make_mock_coordinator(parent_id=None)
+        config = {
+            "port": 0,
+            "host": "127.0.0.1",
+            "agent_name": "Card Storage Test",
+            "agent_description": "Tests card storage",
+            "skills": [{"name": "testing", "description": "Good at tests"}],
+        }
+        await mount(coordinator, config)
+
+        # Extract registry from the register_capability call
+        registry = coordinator.register_capability.call_args[0][1]
+
+        # Card should be stored on the registry
+        assert registry.card is not None
+        assert registry.card["name"] == "Card Storage Test"
+        assert "url" in registry.card
+        assert "capabilities" in registry.card
+
+        # Clean up
+        cleanup_fn = coordinator.register_cleanup.call_args[0][0]
+        await cleanup_fn()
+
+    async def test_mount_card_matches_config(self):
+        from amplifier_module_hooks_a2a_server import mount
+
+        coordinator = _make_mock_coordinator(parent_id=None)
+        config = {
+            "port": 0,
+            "host": "127.0.0.1",
+            "agent_name": "Custom Agent Name",
+            "agent_description": "Custom description",
+        }
+        await mount(coordinator, config)
+
+        registry = coordinator.register_capability.call_args[0][1]
+
+        # Card name should match the configured agent_name
+        assert registry.card is not None
+        assert registry.card["name"] == "Custom Agent Name"
+        assert registry.card["description"] == "Custom description"
+
+        # Clean up
+        cleanup_fn = coordinator.register_cleanup.call_args[0][0]
+        await cleanup_fn()

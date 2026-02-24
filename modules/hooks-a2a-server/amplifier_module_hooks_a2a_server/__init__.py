@@ -44,6 +44,7 @@ async def mount(coordinator: Any, config: dict[str, Any] | None = None) -> None:
 
     # Build the Agent Card
     card = build_agent_card(config)
+    registry.card = card
 
     # Register shared state so tool-a2a can access it
     coordinator.register_capability("a2a.registry", registry)
