@@ -93,9 +93,7 @@ hooks:
 
 tools:
   - module: tool-a2a
-    config:
-      sender_url: "http://127.0.0.1:8222"
-      sender_name: "My Agent"
+    config: {}  # sender identity auto-derived from hook
 ---
 ```
 
@@ -120,7 +118,29 @@ sources:
 
 ## Usage
 
-### Discover agents
+### Connect to another agent
+
+```
+> What's my A2A address?
+
+Agent calls: a2a(operation="whoami")
+
+"Your agent is 'bkrabach's Agent' at http://192.168.1.42:8222.
+ Share this URL with anyone who wants to connect."
+
+> My friend Sarah wants to add my agent. She has her own Amplifier session.
+
+"Tell Sarah to say: 'Add my friend's agent at http://192.168.1.42:8222'"
+
+[In Sarah's session]
+> Add my friend's agent at http://192.168.1.42:8222
+
+Agent calls: a2a(operation="add_contact", url="http://192.168.1.42:8222")
+
+"Added bkrabach's Agent as a contact."
+```
+
+### Discover agents on your network
 
 ```
 > List the available A2A agents
@@ -177,6 +197,8 @@ Agent calls: a2a(operation="respond", task_id="abc-123",
 
 | Operation | Purpose |
 |-----------|---------|
+| `whoami` | Show your agent's name, URL, and status |
+| `add_contact` | Add a remote agent by URL (fetches their card) |
 | `agents` | List all known agents (config + mDNS + contacts) |
 | `discover` | Scan LAN for agents via mDNS |
 | `card` | Fetch a remote agent's identity card |
@@ -200,11 +222,11 @@ amplifier-bundle-a2a/
 ├── behaviors/
 │   └── a2a.yaml                      # Composes tool + hook + context
 ├── context/
-│   └── a2a-instructions.md           # LLM instructions (12 operations)
+│   └── a2a-instructions.md           # LLM instructions (14 operations)
 ├── modules/
 │   ├── tool-a2a/                     # CLIENT: sends messages to remote agents
 │   │   └── amplifier_module_tool_a2a/
-│   │       ├── __init__.py           # A2ATool (12 operations)
+│   │       ├── __init__.py           # A2ATool (14 operations)
 │   │       ├── client.py             # A2A HTTP client
 │   │       └── discovery.py          # mDNS browsing
 │   └── hooks-a2a-server/             # SERVER: receives messages from remote agents
@@ -218,7 +240,7 @@ amplifier-bundle-a2a/
 │           ├── injection.py          # Mode B live injection handler
 │           ├── evaluation.py         # LLM confidence evaluation
 │           └── discovery.py          # mDNS advertisement
-└── tests/                            # 260 tests
+└── tests/                            # 286 tests
 ```
 
 ### How It Works
@@ -235,9 +257,9 @@ amplifier-bundle-a2a/
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `port` | `8222` | HTTP server port |
+| `port` | `8222` | HTTP server port. If port 8222 is in use, you'll see a clear error suggesting a different port |
 | `host` | `0.0.0.0` | Bind address |
-| `agent_name` | `"Amplifier Agent"` | Display name in Agent Card |
+| `agent_name` | `"$USER's Agent"` | Display name in Agent Card. Defaults to `$USER's Agent` (e.g., "bkrabach's Agent") |
 | `agent_description` | `"An Amplifier-powered agent"` | Description in Agent Card |
 | `skills` | `[]` | Skills advertised in Agent Card |
 | `known_agents` | `[]` | Pre-configured remote agents `[{name, url}]` |
@@ -253,8 +275,8 @@ amplifier-bundle-a2a/
 |--------|---------|-------------|
 | `default_timeout` | `30` | Blocking send timeout (seconds) |
 | `poll_interval` | `5` | Background poller interval (seconds) |
-| `sender_url` | `null` | This agent's URL (for contact identification) |
-| `sender_name` | `null` | This agent's name (for display on receiving end) |
+| `sender_url` | *(auto-derived)* | Auto-derived from the server hook's registry. Only needed as an escape hatch if the tool can't find the hook |
+| `sender_name` | *(auto-derived)* | Auto-derived from the server hook's registry. Only needed as an escape hatch if the tool can't find the hook |
 
 ## Network Requirements
 

@@ -16,6 +16,10 @@ You have access to the `a2a` tool for communicating with remote Amplifier agents
 - **`dismiss`** — Dismiss a pending incoming message. Requires `task_id`.
 - **`defer`** — Defer an incoming message for later ("not now"). Requires `task_id`. The message stays in your queue and can be responded to later.
 
+### Identity & Contacts
+- **`whoami`** — Show your agent's name, URL, and status. Share the URL with others so they can connect to you.
+- **`add_contact`** — Add a remote agent by URL. Fetches their identity card and adds them as a contact. Requires `url`. Optional `tier` (default "known").
+
 ### Managing Contacts
 - **`approve`** — Approve a new agent requesting access. Requires `agent` (URL). Optional `tier` (default "known").
 - **`block`** — Block a new agent requesting access. Requires `agent` (URL).
@@ -53,6 +57,16 @@ Relay the attribution naturally: "Sarah's agent answered autonomously" or "Sarah
 ### Discovery
 - Call `a2a(operation="discover")` to find agents on the local network
 - Agents on other networks (Tailscale, VPN) must be configured manually
+
+### Connecting to Another Agent
+The typical flow to connect two agents:
+1. Ask "What's my A2A address?" — your agent calls `whoami` and gives you your URL
+2. Share the URL with the other person (text, chat, verbal — any way you like)
+3. They tell their agent "Add my friend's agent at http://..." — their agent calls `add_contact`
+4. They send you a message — you see a first-contact approval request
+5. You approve — you're connected
+
+For agents on the same LAN, mDNS discovery may find them automatically via `discover`.
 
 ## Important
 
