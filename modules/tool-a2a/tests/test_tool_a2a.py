@@ -21,6 +21,7 @@ def _make_mock_registry(agents=None):
     registry.resolve_agent_url = MagicMock(return_value=None)
     registry.get_cached_card = MagicMock(return_value=None)
     registry.cache_card = MagicMock()
+    registry.card = None  # Matches real A2ARegistry default
     return registry
 
 
@@ -1613,3 +1614,124 @@ class TestOutgoingTracking:
 
         entry = tool._pending_outgoing["task-n-1"]
         assert entry["agent_name"] == "http://remote-agent:8222"
+
+
+class TestSendSenderIdentity:
+    """Task 5: _op_send derives sender identity from registry.card, config as fallback."""
+
+    @pytest.mark.asyncio
+    async def test_send_derives_sender_url_from_registry_card(self):
+        """registry.card has url/name → send_message receives card's values."""
+        from amplifier_module_tool_a2a import A2ATool
+
+        registry = _make_mock_registry()
+        registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
+        registry.card = {"name": "Test Agent", "url": "http://test:8222"}
+        coordinator = _make_mock_coordinator(registry=registry)
+        tool = A2ATool(coordinator, {})
+
+        tool.client = MagicMock()
+        tool.client.send_message = AsyncMock(
+            return_value={"id": "t1", "status": "COMPLETED", "artifacts": []}
+        )
+
+        await tool.execute({"operation": "send", "agent": "Alice", "message": "Hi"})
+        tool.client.send_message.assert_called_once_with(
+            "http://alice:8222",
+            "Hi",
+            sender_url="http://test:8222",
+            sender_name="Test Agent",
+        )
+
+    @pytest.mark.asyncio
+    async def test_send_config_overrides_registry_card(self):
+        """Config sender_url/sender_name take precedence over registry.card."""
+        from amplifier_module_tool_a2a import A2ATool
+
+        registry = _make_mock_registry()
+        registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
+        registry.card = {"name": "Test Agent", "url": "http://test:8222"}
+        coordinator = _make_mock_coordinator(registry=registry)
+        tool = A2ATool(
+            coordinator,
+            {
+                "sender_url": "http://proxy:9000",
+                "sender_name": "Proxy Agent",
+            },
+        )
+
+        tool.client = MagicMock()
+        tool.client.send_message = AsyncMock(
+            return_value={"id": "t1", "status": "COMPLETED", "artifacts": []}
+        )
+
+        await tool.execute({"operation": "send", "agent": "Alice", "message": "Hi"})
+        tool.client.send_message.assert_called_once_with(
+            "http://alice:8222",
+            "Hi",
+            sender_url="http://proxy:9000",
+            sender_name="Proxy Agent",
+        )
+
+    @pytest.mark.asyncio
+    async def test_send_works_without_card_on_registry(self):
+        """registry.card is None, config has sender_url → config fallback works."""
+        from amplifier_module_tool_a2a import A2ATool
+
+        registry = _make_mock_registry()
+        registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
+        registry.card = None
+        coordinator = _make_mock_coordinator(registry=registry)
+        tool = A2ATool(
+            coordinator,
+            {"sender_url": "http://fallback:8222", "sender_name": "Fallback"},
+        )
+
+        tool.client = MagicMock()
+        tool.client.send_message = AsyncMock(
+            return_value={"id": "t1", "status": "COMPLETED", "artifacts": []}
+        )
+
+        await tool.execute({"operation": "send", "agent": "Alice", "message": "Hi"})
+        tool.client.send_message.assert_called_once_with(
+            "http://alice:8222",
+            "Hi",
+            sender_url="http://fallback:8222",
+            sender_name="Fallback",
+        )
+
+    @pytest.mark.asyncio
+    async def test_send_works_without_any_sender_identity(self):
+        """registry.card is None, no config → sender_url/sender_name are None."""
+        from amplifier_module_tool_a2a import A2ATool
+
+        registry = _make_mock_registry()
+        registry.resolve_agent_url = MagicMock(return_value="http://alice:8222")
+        registry.get_cached_card = MagicMock(
+            return_value={"name": "Alice", "capabilities": {"realtimeResponse": True}}
+        )
+        registry.card = None
+        coordinator = _make_mock_coordinator(registry=registry)
+        tool = A2ATool(coordinator, {})
+
+        tool.client = MagicMock()
+        tool.client.send_message = AsyncMock(
+            return_value={"id": "t1", "status": "COMPLETED", "artifacts": []}
+        )
+
+        await tool.execute({"operation": "send", "agent": "Alice", "message": "Hi"})
+        tool.client.send_message.assert_called_once_with(
+            "http://alice:8222",
+            "Hi",
+            sender_url=None,
+            sender_name=None,
+        )

@@ -319,13 +319,17 @@ class A2ATool:
         if is_async_agent and blocking:
             blocking = False
 
-        # Determine our sender identity for the remote server's contact check
+        # Derive sender identity from the hook's live state (single source of truth)
         sender_url = None
         sender_name = None
-        if self.registry:
-            # Get our server's URL from the agent card config (if available)
-            sender_url = self.config.get("sender_url")
-            sender_name = self.config.get("sender_name")
+        if self.registry and self.registry.card:
+            sender_url = self.registry.card.get("url")
+            sender_name = self.registry.card.get("name")
+        # Config override as escape hatch (tool-only mode, behind reverse proxy)
+        if self.config.get("sender_url"):
+            sender_url = self.config["sender_url"]
+        if self.config.get("sender_name"):
+            sender_name = self.config["sender_name"]
 
         # Send the message (always non-blocking at the HTTP level)
         result = await self.client.send_message(
